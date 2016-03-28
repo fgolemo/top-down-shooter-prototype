@@ -1,8 +1,9 @@
 var rp = "res/"; // resource prefix
 
 var res = {
-    HelloWorld_png : rp+"HelloWorld.png",
-    player1_png : rp+"player1.png"
+    HelloWorld_png: rp + "HelloWorld.png",
+    arena_png: rp + "arena.png",
+    player1_png: rp + "player1.png"
 };
 
 var g_resources = [];
