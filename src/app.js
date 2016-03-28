@@ -1,7 +1,3 @@
-/** @expose */
-window.io;
-
-var SocketIO = SocketIO || window.io;
 
 var Movments = {
     up: new cc.p(0, 1),
@@ -11,8 +7,6 @@ var Movments = {
 };
 
 var HelloWorldLayer = cc.Layer.extend({
-    _sioClient: null,
-    _sioEndpoint: null,
     _sioClientStatus: null,
     sprite: null,
     moving: {
@@ -27,6 +21,7 @@ var HelloWorldLayer = cc.Layer.extend({
     aim: {x: 0, y: 0},
     totalPosition: cc.p(0,0),
     arenaSize: {width: 450, height: 500},
+    sockHandler: null,
     updatePosition: function (dt) {
         var trajectory = cc.p(0.0, 0.0);
         trajectory = cc.pAdd(trajectory, cc.pMult(Movments.up, this.moving.up));
@@ -63,7 +58,7 @@ var HelloWorldLayer = cc.Layer.extend({
         } else if (xDiff < 0 && yDiff <= 0) {
             angleDeg = 180 - angleDeg;
         } else if (xDiff < 0 && yDiff > 0) {
-            angleDeg = 180 - 1 * angleDeg;
+            angleDeg = 180 - angleDeg;
         } else if (xDiff >= 0 && yDiff > 0) {
             angleDeg = 360 - angleDeg
         }
@@ -89,24 +84,24 @@ var HelloWorldLayer = cc.Layer.extend({
         // ask the window size
         var size = cc.winSize;
 
-        /////////////////////////////
-        // 3. add your codes below...
-        // add a label shows "Hello World"
-        // create and initialize a label
-        var helloLabel = new cc.LabelTTF("Hello World", "Arial", 38);
-        // position the label on the center of the screen
-        helloLabel.x = size.width / 2;
-        helloLabel.y = size.height / 2 + 200;
-        // add the label as a child to this layer
-        this.addChild(helloLabel, 5);
-
-        // add "HelloWorld" splash screen"
-        this.sprite = new cc.Sprite(res.HelloWorld_png);
-        this.sprite.attr({
-            x: size.width / 2,
-            y: size.height / 2
-        });
-        this.addChild(this.sprite, 0);
+        // /////////////////////////////
+        // // 3. add your codes below...
+        // // add a label shows "Hello World"
+        // // create and initialize a label
+        // var helloLabel = new cc.LabelTTF("Hello World", "Arial", 38);
+        // // position the label on the center of the screen
+        // helloLabel.x = size.width / 2;
+        // helloLabel.y = size.height / 2 + 200;
+        // // add the label as a child to this layer
+        // this.addChild(helloLabel, 5);
+        //
+        // // add "HelloWorld" splash screen"
+        // this.sprite = new cc.Sprite(res.HelloWorld_png);
+        // this.sprite.attr({
+        //     x: size.width / 2,
+        //     y: size.height / 2
+        // });
+        // this.addChild(this.sprite, 0);
 
         this.player = new cc.Sprite(res.player1_png);
         this.player.attr({
@@ -178,57 +173,14 @@ var HelloWorldLayer = cc.Layer.extend({
 
         }, this);
 
-        var socketConnect = function() {
-
-            //create a client by using this static method, url does not need to contain the protocol
-            var sioclient = SocketIO.connect("ws://localhost:3000");
-
-            //if you need to track multiple sockets it is best to store them with tags in your own array for now
-            sioclient.tag = "Test Client";
-
-            //attaching the status label to the socketio client
-            //this is only necessary in javascript due to scope within shared event handlers,
-            //as 'this' will refer to the socketio client
-            sioclient.statusLabel = scope._sioClientStatus;
-
-            //register event callbacks
-            //this is an example of a handler declared inline
-            sioclient.on("connect", function() {
-                var msg = sioclient.tag + " Connected!";
-                this.statusLabel.setString(msg);
-                cc.log(msg);
-                sioclient.send(msg);
-            });
-
-            //example of a handler that is shared between multiple clients
-            sioclient.on("message", function (data) {cc.log(data)});
-
-            sioclient.on("disconnect", function(data) {cc.log("disconnected");cc.log(data);});
-
-            this._sioClient = sioclient;
-        };
-
-        var socketSend = function() {
-            if(this._sioClient != null) {
-                this._sioClient.emit("echo",{a:9,b:8});
-                this._sioClient.on("echo", function(data) {
-                    cc.log("echotest 'on' callback fired!");
-                    cc.log(data);
-                });
-            }
-
-        };
-
-        var socketDisconnect = function() {
-            if(this._sioClient != null) this._sioClient.disconnect();
-        };
-
 
         this._sioClientStatus = new cc.LabelTTF("Not connected...", "Arial", 14);
         this._sioClientStatus.setAnchorPoint(cc.p(0, 0));
         this._sioClientStatus.setPosition(cc.p(0,size.height * .25));
         this.addChild(this._sioClientStatus);
 
+        this.sockHandler = SocketHandler(scope);
+        
         this.scheduleUpdate();
 
         return true;
