@@ -3,11 +3,11 @@ window.io;
 
 var SocketIO = SocketIO || window.io;
 
-var SocketHandler = function (parentScope) {
+var SocketHandler = function (parentScope, playerHandler) {
     this.socketClient = null;
 
     var scope = this;
-    
+
     this.init = function () {
         this.socketClient = SocketIO.connect("ws://localhost:3000");
 
@@ -21,7 +21,7 @@ var SocketHandler = function (parentScope) {
                     y: parentScope.totalPosition.y
                 }
             };
-            scope.socketClient.emit('playerAdd',data);
+            scope.socketClient.emit('playerAdd', JSON.stringify(data));
         });
 
         this.socketClient.on("disconnect", function (data) {
@@ -37,12 +37,26 @@ var SocketHandler = function (parentScope) {
             this.socketClient.on("playerJoined", function (data) {
                 cc.log("player joined");
                 cc.log(data);
+                playerHandler.addPlayer(data);
             });
             this.socketClient.on("playerLeft", function (data) {
                 cc.log("player left");
                 cc.log(data);
             });
+            this.socketClient.on("playerUpdate", function (data) {
+                playerHandler.updatePlayer(data);
+            });
         }
+    };
+
+    this.updatePos = function (newPos) {
+        var data = {
+            position: {
+                x: newPos.x,
+                y: newPos.y
+            }
+        };
+        this.socketClient.emit('playerUpdate', JSON.stringify(data));
     };
 
     // this._sioClient.emit("echo",{a:9,b:8});

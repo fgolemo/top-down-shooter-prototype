@@ -14,6 +14,7 @@
     "jsList" : [
         "src/resource.js",
         "src/sockethandler.js",
+        "src/playerhandler.js",
         "src/app.js"
     ]
 }

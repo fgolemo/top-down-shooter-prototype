@@ -15,15 +15,26 @@ io.on('connection', function(socket){
     });
 
     socket.on('playerAdd', function (data) {
-        console.log("player added");
-        console.dir(data);
+        data = JSON.parse(data);
+
         this.playerID = count;
         count += 1;
+
+        console.log("player added: "+this.playerID);
+        console.dir(data);
+
 
         players[this.playerID] = data;
         data.id = this.playerID;
         socket.broadcast.emit('playerJoined', data);
-    })
+    });
+    
+    socket.on('playerUpdate', function (data) {
+        data = JSON.parse(data);
+        players[this.playerID] = data;
+        data.id = this.playerID;
+        socket.broadcast.emit('playerUpdate', data);
+    });
 
 });
 

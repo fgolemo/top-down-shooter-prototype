@@ -22,6 +22,8 @@ var HelloWorldLayer = cc.Layer.extend({
     totalPosition: cc.p(0,0),
     arenaSize: {width: 450, height: 500},
     sockHandler: null,
+    playerHandler: null,
+    lastPos: {x:0,y:0},
     updatePosition: function (dt) {
         var trajectory = cc.p(0.0, 0.0);
         trajectory = cc.pAdd(trajectory, cc.pMult(Movments.up, this.moving.up));
@@ -47,6 +49,7 @@ var HelloWorldLayer = cc.Layer.extend({
 
         this.totalPosition = newPos;
         this.arena.setPosition(this.totalPosition);
+
     },
     updateOrientation: function (dt) {
         xDiff = this.aim.x - this.player.x;
@@ -72,6 +75,14 @@ var HelloWorldLayer = cc.Layer.extend({
     update: function (dt) {
         this.updatePosition(dt);
         this.updateOrientation(dt);
+        if (this.totalPosition.x != this.lastPos.x || this.totalPosition.y != this.lastPos.y) {
+            this.sockHandler.updatePos(this.totalPosition);
+            this.lastPos = {
+                x: this.totalPosition.x,
+                y: this.totalPosition.y
+            };
+        }
+
     },
     ctor: function () {
         //////////////////////////////
@@ -179,7 +190,8 @@ var HelloWorldLayer = cc.Layer.extend({
         this._sioClientStatus.setPosition(cc.p(0,size.height * .25));
         this.addChild(this._sioClientStatus);
 
-        this.sockHandler = SocketHandler(scope);
+        this.playerHandler = new PlayerHandler(scope); 
+        this.sockHandler = new SocketHandler(scope, this.playerHandler);
         
         this.scheduleUpdate();
 
