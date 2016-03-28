@@ -1,3 +1,8 @@
+/** @expose */
+window.io;
+
+var SocketIO = SocketIO || window.io;
+
 var Movments = {
     up: new cc.p(0, 1),
     down: new cc.p(0, -1),
@@ -6,6 +11,9 @@ var Movments = {
 };
 
 var HelloWorldLayer = cc.Layer.extend({
+    _sioClient: null,
+    _sioEndpoint: null,
+    _sioClientStatus: null,
     sprite: null,
     moving: {
         up: 0.0,
@@ -143,16 +151,83 @@ var HelloWorldLayer = cc.Layer.extend({
             }
         };
 
+        var specialKeys = [49,50,51,52];
+
         cc.eventManager.addListener({
             event: cc.EventListener.KEYBOARD,
             onKeyPressed: function (keycode, event) {
                 setMovement(keycode, 1);
             },
             onKeyReleased: function (keycode, event) {
-                setMovement(keycode, 0);
+                if (specialKeys.indexOf(keycode) > -1) {
+                    switch(keycode) {
+                        case 49: //1
+                            socketConnect();
+                            break;
+                        case 50: //2
+                            socketSend();
+                            break;
+                        case 51: //3
+                            socketDisconnect();
+                            break;
+                    }
+                } else {
+                    setMovement(keycode, 0);
+                }
             }
 
         }, this);
+
+        var socketConnect = function() {
+
+            //create a client by using this static method, url does not need to contain the protocol
+            var sioclient = SocketIO.connect("ws://localhost:3000");
+
+            //if you need to track multiple sockets it is best to store them with tags in your own array for now
+            sioclient.tag = "Test Client";
+
+            //attaching the status label to the socketio client
+            //this is only necessary in javascript due to scope within shared event handlers,
+            //as 'this' will refer to the socketio client
+            sioclient.statusLabel = scope._sioClientStatus;
+
+            //register event callbacks
+            //this is an example of a handler declared inline
+            sioclient.on("connect", function() {
+                var msg = sioclient.tag + " Connected!";
+                this.statusLabel.setString(msg);
+                cc.log(msg);
+                sioclient.send(msg);
+            });
+
+            //example of a handler that is shared between multiple clients
+            sioclient.on("message", function (data) {cc.log(data)});
+
+            sioclient.on("disconnect", function(data) {cc.log("disconnected");cc.log(data);});
+
+            this._sioClient = sioclient;
+        };
+
+        var socketSend = function() {
+            if(this._sioClient != null) {
+                this._sioClient.emit("echo",{a:9,b:8});
+                this._sioClient.on("echo", function(data) {
+                    cc.log("echotest 'on' callback fired!");
+                    cc.log(data);
+                });
+            }
+
+        };
+
+        var socketDisconnect = function() {
+            if(this._sioClient != null) this._sioClient.disconnect();
+        };
+
+
+        this._sioClientStatus = new cc.LabelTTF("Not connected...", "Arial", 14);
+        this._sioClientStatus.setAnchorPoint(cc.p(0, 0));
+        this._sioClientStatus.setPosition(cc.p(0,size.height * .25));
+        this.addChild(this._sioClientStatus);
 
         this.scheduleUpdate();
 
