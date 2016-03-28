@@ -60,6 +60,10 @@ var HelloWorldLayer = cc.Layer.extend({
             angleDeg = 360 - angleDeg
         }
 
+        angleDeg -= 13; // correcting for sprite orientation
+        if (angleDeg < 0) {
+            angleDeg+= 360;
+        }
         this.player.setRotation(angleDeg);
     },
     update: function (dt) {
