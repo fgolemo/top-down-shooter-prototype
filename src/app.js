@@ -15,7 +15,7 @@ var HelloWorldLayer = cc.Layer.extend({
     },
     player: null,
     velocity: 500.0,
-    aim: null,
+    aim: {x: 0, y: 0},
     updatePosition: function (dt) {
         var trajectory = cc.p(0.0, 0.0);
         trajectory = cc.pAdd(trajectory, cc.pMult(Movments.up, this.moving.up));
@@ -29,8 +29,8 @@ var HelloWorldLayer = cc.Layer.extend({
         this.player.setPosition(newPos);
     },
     updateOrientation: function (dt) {
-        xDiff = this.aim._x - this.player.x;
-        yDiff = this.aim._y - this.player.y;
+        xDiff = this.aim.x - this.player.x;
+        yDiff = this.aim.y - this.player.y;
         angleRad = Math.atan(yDiff / xDiff);
         angleDeg = angleRad * 180 / Math.PI;
         if (xDiff > 0 && yDiff < 0) {
@@ -92,8 +92,10 @@ var HelloWorldLayer = cc.Layer.extend({
         cc.eventManager.addListener({
             event: cc.EventListener.MOUSE,
             onMouseMove: function (event) {
-                // console.log(event._x, event._y);
-                scope.aim = event;
+                scope.aim = {
+                    x: event.getLocationX(),
+                    y: event.getLocationY()
+                };
             }
         }, this);
 
