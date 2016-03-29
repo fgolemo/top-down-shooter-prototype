@@ -15,7 +15,7 @@ var PlayerHandler = function (parentScope) {
             y: data.position.y
         });
         this.players[data.id].player.setAnchorPoint(cc.p(0.25, 0.5));
-        parentScope.addChild(this.players[data.id].player, 10);
+        parentScope.arena.addChild(this.players[data.id].player, 10);
     };
     this.updatePlayerData = function (data) {
         this.players[data.id].position = data.position;
@@ -30,4 +30,9 @@ var PlayerHandler = function (parentScope) {
         this.players[data.id].player.setRotation(this.players[data.id].rotation);
 
     };
+    this.initPlayers = function (players) {
+        for (var i in players) {
+            this.addPlayer(players[i])
+        }
+    }
 };

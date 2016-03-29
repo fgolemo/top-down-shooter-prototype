@@ -46,6 +46,9 @@ var SocketHandler = function (parentScope, playerHandler) {
             this.socketClient.on("playerUpdate", function (data) {
                 playerHandler.updatePlayer(data);
             });
+            this.socketClient.on('playerConnect', function(data) {
+                playerHandler.initPlayers(data);
+            });
         }
     };
 

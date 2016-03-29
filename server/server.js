@@ -8,6 +8,8 @@ var players = {};
 io.on('connection', function(socket){
     var playerID = 0;
 
+    socket.emit('playerConnect', players);
+    
     socket.on('echo', function(req){
         console.log("echotest");
         console.dir(req);
