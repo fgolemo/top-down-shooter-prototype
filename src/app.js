@@ -21,6 +21,7 @@ var HelloWorldLayer = cc.Layer.extend({
     aim: {x: 0, y: 0},
     totalPosition: cc.p(0,0),
     arenaSize: {width: 450, height: 500},
+    arenaMax: null,
     sockHandler: null,
     playerHandler: null,
     lastPos: {x:0,y:0},
@@ -48,7 +49,8 @@ var HelloWorldLayer = cc.Layer.extend({
         }
 
         this.totalPosition = newPos;
-        this.arena.setPosition(this.totalPosition);
+
+        this.arena.setPosition(cc.pSub(this.arenaMax, this.totalPosition));
 
     },
     updateOrientation: function (dt) {
@@ -70,17 +72,19 @@ var HelloWorldLayer = cc.Layer.extend({
         if (angleDeg < 0) {
             angleDeg+= 360;
         }
-        this.player.setRotation(angleDeg);
+        this.angleDeg = angleDeg;
+        this.player.setRotation(this.angleDeg);
     },
     update: function (dt) {
         this.updatePosition(dt);
         this.updateOrientation(dt);
-        if (this.totalPosition.x != this.lastPos.x || this.totalPosition.y != this.lastPos.y) {
-            this.sockHandler.updatePos(this.totalPosition);
+        if (this.totalPosition.x != this.lastPos.x || this.totalPosition.y != this.lastPos.y || this.angleDeg != this.lastDeg) {
+            this.sockHandler.updatePos(this.totalPosition, this.angleDeg);
             this.lastPos = {
                 x: this.totalPosition.x,
                 y: this.totalPosition.y
             };
+            this.lastDeg = this.angleDeg;
         }
 
     },
@@ -94,6 +98,7 @@ var HelloWorldLayer = cc.Layer.extend({
         //    you may modify it.
         // ask the window size
         var size = cc.winSize;
+        this.arenaMax = cc.p(this.arenaSize.width, this.arenaSize.height);
 
         // /////////////////////////////
         // // 3. add your codes below...
@@ -143,16 +148,16 @@ var HelloWorldLayer = cc.Layer.extend({
         var setMovement = function (keycode, up) {
             switch (keycode) {
                 case 87:
-                    scope.moving.down = up;
-                    break;
-                case 83:
                     scope.moving.up = up;
                     break;
+                case 83:
+                    scope.moving.down = up;
+                    break;
                 case 65:
-                    scope.moving.right = up;
+                    scope.moving.left = up;
                     break;
                 case 68:
-                    scope.moving.left = up;
+                    scope.moving.right = up;
                     break;
             }
         };
@@ -190,7 +195,7 @@ var HelloWorldLayer = cc.Layer.extend({
         this._sioClientStatus.setPosition(cc.p(0,size.height * .25));
         this.addChild(this._sioClientStatus);
 
-        this.playerHandler = new PlayerHandler(scope); 
+        this.playerHandler = new PlayerHandler(scope);
         this.sockHandler = new SocketHandler(scope, this.playerHandler);
         
         this.scheduleUpdate();

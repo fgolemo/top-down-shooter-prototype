@@ -49,12 +49,13 @@ var SocketHandler = function (parentScope, playerHandler) {
         }
     };
 
-    this.updatePos = function (newPos) {
+    this.updatePos = function (newPos, newDeg) {
         var data = {
             position: {
                 x: newPos.x,
                 y: newPos.y
-            }
+            },
+            rotation: newDeg
         };
         this.socketClient.emit('playerUpdate', JSON.stringify(data));
     };

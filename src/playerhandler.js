@@ -19,6 +19,7 @@ var PlayerHandler = function (parentScope) {
     };
     this.updatePlayerData = function (data) {
         this.players[data.id].position = data.position;
+        this.players[data.id].rotation = data.rotation;
     };
     this.updatePlayer = function (data) {
         this.updatePlayerData(data);
@@ -26,6 +27,7 @@ var PlayerHandler = function (parentScope) {
             this.players[data.id].position.x,
             this.players[data.id].position.y
         ));
+        this.players[data.id].player.setRotation(this.players[data.id].rotation);
 
     };
 };
