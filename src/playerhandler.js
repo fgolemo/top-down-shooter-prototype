@@ -32,7 +32,7 @@ var PlayerHandler = function (parentScope) {
     };
     this.initPlayers = function (players) {
         for (var i in players) {
-            this.addPlayer(players[i])
+            this.addPlayer(players[i]);
         }
     }
 };

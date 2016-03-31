@@ -35,18 +35,28 @@ var SocketHandler = function (parentScope, playerHandler) {
     this.setupPlayerListener = function () {
         if (this.socketClient != null) {
             this.socketClient.on("playerJoined", function (data) {
-                cc.log("player joined");
-                cc.log(data);
+                if ((typeof data) == "string") {
+                    data = JSON.parse(data);
+                }
                 playerHandler.addPlayer(data);
             });
             this.socketClient.on("playerLeft", function (data) {
+                if ((typeof data) == "string") {
+                    data = JSON.parse(data);
+                }
                 cc.log("player left");
                 cc.log(data);
             });
             this.socketClient.on("playerUpdate", function (data) {
+                if ((typeof data) == "string") {
+                    data = JSON.parse(data);
+                }
                 playerHandler.updatePlayer(data);
             });
             this.socketClient.on('playerConnect', function(data) {
+                if ((typeof data) == "string") {
+                    data = JSON.parse(data);
+                }
                 playerHandler.initPlayers(data);
             });
         }
