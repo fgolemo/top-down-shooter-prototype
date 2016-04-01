@@ -44,8 +44,7 @@ var SocketHandler = function (parentScope, playerHandler) {
                 if ((typeof data) == "string") {
                     data = JSON.parse(data);
                 }
-                cc.log("player left");
-                cc.log(data);
+                playerHandler.removePlayer(data);
             });
             this.socketClient.on("playerUpdate", function (data) {
                 if ((typeof data) == "string") {

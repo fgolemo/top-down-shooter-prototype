@@ -38,6 +38,15 @@ io.on('connection', function(socket){
         socket.broadcast.emit('playerUpdate', data);
     });
 
+    socket.on('disconnect', function() {
+        console.log("player left: "+this.playerID);
+        delete players[this.playerID];
+        var data = {};
+        data.id = this.playerID;
+        socket.broadcast.emit('playerLeft', data);
+    });
+
+
 });
 
 http.listen(3000, function(){

@@ -3,8 +3,7 @@ var PlayerHandler = function (parentScope) {
     this.players = {};
     this.playerIDs = [];
     this.addPlayer = function (data) {
-        cc.log("new player joining");
-        cc.log(data);
+        cc.log("new player joining: "+data.id);
         this.playerIDs.push(data.id);
         this.players[data.id] = {};
         this.updatePlayerData(data);
@@ -34,5 +33,17 @@ var PlayerHandler = function (parentScope) {
         for (var i in players) {
             this.addPlayer(players[i]);
         }
-    }
+    };
+    this.removePlayer = function (data) {
+        cc.log("player left: "+data.id);
+        for(var i = 0; i < this.playerIDs.length; i++) {
+            if(this.playerIDs[i] == data.id) {
+                parentScope.arena.removeChild(this.players[data.id].player);
+                this.playerIDs.splice(i, 1);
+                delete this.players[data.id];
+                break;
+            }
+        }
+
+    };
 };
