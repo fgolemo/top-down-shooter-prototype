@@ -5,17 +5,8 @@ var count = 0;
 
 var players = {};
 
-var cmdCounter = 0;
-
-setInterval(function() {
-    console.log("cmdCounter: "+cmdCounter);
-    cmdCounter = 0;
-}, 1000);
-
 io.on('connection', function(socket){
     var playerID = 0;
-
-    console.dir(socket);
 
     socket.emit('playerConnect', players);
     
@@ -41,7 +32,6 @@ io.on('connection', function(socket){
     });
     
     socket.on('playerUpdate', function (data) {
-        cmdCounter += 1;
         data = JSON.parse(data);
         players[this.playerID] = data;
         data.id = this.playerID;
