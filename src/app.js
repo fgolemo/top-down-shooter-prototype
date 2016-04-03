@@ -86,7 +86,7 @@ var HelloWorldLayer = cc.Layer.extend({
             };
             this.lastDeg = this.angleDeg;
         }
-
+        this.sockHandler.updateCycle(dt);
     },
     ctor: function () {
         //////////////////////////////

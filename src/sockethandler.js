@@ -8,6 +8,12 @@ var SocketHandler = function (parentScope, playerHandler) {
 
     var scope = this;
 
+    this.lastUpdate = null;
+
+    this.socklimit = 20; // how many requests per second can the client send out?
+    this.maxDt = 1/this.socklimit*1000; // maximum number of seconds that can pass between two sends
+    this.currentDt = -1;
+
     this.init = function () {
         this.socketClient = SocketIO.connect("ws://localhost:3000");
 
@@ -69,11 +75,22 @@ var SocketHandler = function (parentScope, playerHandler) {
             },
             rotation: newDeg
         };
-        this.socketClient.emit('playerUpdate', JSON.stringify(data));
+        this.lastUpdate = data;
     };
 
     // this._sioClient.emit("echo",{a:9,b:8});
 
+    this.updateCycle = function(dt) {
+        if (this.currentDt == -1 || this.currentDt >= this.maxDt) {
+            if (this.lastUpdate != null) {
+                this.socketClient.emit('playerUpdate', JSON.stringify(this.lastUpdate));
+                this.lastUpdate = null;
+            }
+            this.currentDt = 0;
+        } else {
+            this.currentDt += (dt*1000);
+        }
+    };
 
     this.init();
     this.setupPlayerListener();
