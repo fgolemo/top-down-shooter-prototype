@@ -5,6 +5,8 @@ var movementHandler = {
         left: false,
         right: false
     },
+    aim: {x: 0, y: 0},
+    angleDeg: 0,
     setMovement: function(keycode, body, keyAction) {
         // cc.log("key pressed: "+keycode+", action: "+keyAction);
         var impulse = false;
@@ -43,5 +45,28 @@ var movementHandler = {
             // cc.log(impulseVal);
             body.applyImpulse(impulseVal, cp.v(0, 0));
         }
+    },
+    updateOrientation: function (scope) {
+        xDiff = this.aim.x - scope.player.x;
+        yDiff = this.aim.y - scope.player.y;
+        angleRad = Math.atan(yDiff / xDiff);
+        angleDeg = angleRad * 180 / Math.PI;
+        if (xDiff > 0 && yDiff < 0) {
+            angleDeg = -1 * angleDeg;
+        } else if (xDiff < 0 && yDiff <= 0) {
+            angleDeg = 180 - angleDeg;
+        } else if (xDiff < 0 && yDiff > 0) {
+            angleDeg = 180 - angleDeg;
+        } else if (xDiff >= 0 && yDiff > 0) {
+            angleDeg = 360 - angleDeg
+        }
+
+        angleDeg -= 13; // correcting for sprite orientation
+        if (angleDeg < 0) {
+            angleDeg+= 360;
+        }
+        this.angleDeg = angleDeg;
+        scope.player.setRotation(this.angleDeg);
     }
+
 };

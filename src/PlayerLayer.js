@@ -19,9 +19,6 @@ var PlayerLayer = cc.Layer.extend({
         this.body = new cp.Body(1, cp.momentForBox(1, contentSize.width, contentSize.height));
         this.body.p = cc.p(Math.random()*config.arenaSize.width, Math.random()*config.arenaSize.height);
         
-        // this.body.applyForce(cp.v(150, 0), cp.v(0, 0));//run speed
-        // this.body.applyForce(cp.v(0, 20), cp.v(0, 0));//run speed
-        // this.body.applyImpulse(cp.v(150, 0), cp.v(0, 0));//run speed
         this.space.addBody(this.body);
         this.shape = new cp.BoxShape(this.body, contentSize.width, contentSize.height);
         this.space.addShape(this.shape);
@@ -41,11 +38,21 @@ var PlayerLayer = cc.Layer.extend({
             }
         }, this);
 
+        cc.eventManager.addListener({
+            event: cc.EventListener.MOUSE,
+            onMouseMove: function (event) {
+                movementHandler.aim = {
+                    x: event.getLocationX(),
+                    y: event.getLocationY()
+                };
+            }
+        }, this);
+
         helpers.addDebugNode(this);
 
         this.scheduleUpdate();
     },
     update: function(dt) {
-
+        movementHandler.updateOrientation(this);
     }
 });
