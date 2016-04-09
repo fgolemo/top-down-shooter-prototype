@@ -12,6 +12,7 @@
     "modules" : ["cocos2d", "socketio", "chipmunk"],
 
     "jsList" : [
+        "src/helpers.js",
         "src/resource.js",
         "src/config.js",
         "src/sockethandler.js",

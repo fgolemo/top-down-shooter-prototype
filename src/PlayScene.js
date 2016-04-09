@@ -13,10 +13,6 @@ var PlayScene = cc.Scene.extend({
         //     0);// thickness of wall
         // this.space.addStaticShape(wallBottom);
 
-        this._debugNode = new cc.PhysicsDebugNode(this.space);
-        this._debugNode.setVisible(false);
-        // Parallax ratio and offset
-        this.addChild(this._debugNode, 10);
 
     },
     onEnter:function () {

@@ -28,6 +28,8 @@ var PlayerLayer = cc.Layer.extend({
         this.player.setBody(this.body);
 
         this.addChild(this.player, 10);
+
+        this.player.setRotation(45);
         
         cc.eventManager.addListener({
             event: cc.EventListener.KEYBOARD,
@@ -38,7 +40,9 @@ var PlayerLayer = cc.Layer.extend({
                 movementHandler.setMovement(keycode, scope.body, config.keys.released);
             }
         }, this);
-        
+
+        helpers.addDebugNode(this);
+
         this.scheduleUpdate();
     },
     update: function(dt) {
