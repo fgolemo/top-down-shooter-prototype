@@ -7,3 +7,10 @@ if(typeof TagOfLayer == "undefined") {
     TagOfLayer.bulletsPlayer = 4;
     TagOfLayer.bulletsEnemy = 5;
 }
+
+var config = {
+    arenaSize: {
+        width: 450,
+        height: 500
+    }
+};

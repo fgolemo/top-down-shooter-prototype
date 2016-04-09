@@ -24,19 +24,16 @@ var PlayScene = cc.Scene.extend({
         this.initPhysics();
 
         this.gameLayer = new cc.Layer();
-
-        //add three layer in the right order
-        this.gameLayer.addChild(new BackgroundLayer(), 0, TagOfLayer.background);
-        // this.gameLayer.addChild(new AnimationLayer(this.space), 0, TagOfLayer.Animation);
+        this.gameLayer.addChild(new BackgroundLayer(this.space), 0, TagOfLayer.background);
         this.addChild(this.gameLayer);
         // this.addChild(new StatusLayer(), 0, TagOfLayer.Status);
 
         this.scheduleUpdate();
-
     },
     update:function (dt) {
         // chipmunk step
         this.space.step(dt);
+
         // var animationLayer = this.gameLayer.getChildByTag(TagOfLayer.Animation);
         // var eyeX = animationLayer.getEyeX();
         //
