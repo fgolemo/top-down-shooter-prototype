@@ -12,5 +12,12 @@ var config = {
     arenaSize: {
         width: 450,
         height: 500
+    },
+    keys: {
+        pressed: 1,
+        released: -1
+    },
+    player: {
+        velocity: 400
     }
 };

@@ -16,6 +16,7 @@
         "src/config.js",
         "src/sockethandler.js",
         "src/playerhandler.js",
+        "src/movementHandler.js",
         "src/PlayScene.js",
         "src/PlayerLayer.js",
         "src/EnemyLayer.js",
