@@ -9,12 +9,17 @@
     "renderMode" : 0,
     "engineDir":"frameworks/cocos2d-html5",
 
-    "modules" : ["cocos2d", "socketio"],
+    "modules" : ["cocos2d", "socketio", "chipmunk"],
 
     "jsList" : [
         "src/resource.js",
+        "src/config.js",
         "src/sockethandler.js",
         "src/playerhandler.js",
+        "src/PlayScene.js",
+        "src/PlayerLayer.js",
+        "src/EnemyLayer.js",
+        "src/BackgroundLayer.js",
         "src/app.js"
     ]
 }

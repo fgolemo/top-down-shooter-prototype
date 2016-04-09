@@ -10,14 +10,14 @@ var HelloWorldLayer = cc.Layer.extend({
     _sioClientStatus: null,
     sprite: null,
     moving: {
-        up: 0.0,
-        down: 0.0,
-        left: 0.0,
-        right: 0.0
+        up: false,
+        down: false,
+        left: false,
+        right: false
     },
     player: null,
     arena: null,
-    velocity: 500.0,
+    velocity: 400.0,
     aim: {x: 0, y: 0},
     totalPosition: cc.p(0,0),
     arenaSize: {width: 450, height: 500},
@@ -25,33 +25,9 @@ var HelloWorldLayer = cc.Layer.extend({
     sockHandler: null,
     playerHandler: null,
     lastPos: {x:0,y:0},
+    space: null,
     updatePosition: function (dt) {
-        var trajectory = cc.p(0.0, 0.0);
-        trajectory = cc.pAdd(trajectory, cc.pMult(Movments.up, this.moving.up));
-        trajectory = cc.pAdd(trajectory, cc.pMult(Movments.down, this.moving.down));
-        trajectory = cc.pAdd(trajectory, cc.pMult(Movments.right, this.moving.right));
-        trajectory = cc.pAdd(trajectory, cc.pMult(Movments.left, this.moving.left));
-        trajectory = cc.pMult(trajectory, dt * this.velocity);
-
-        // var newPos = cc.pAdd(this.player.getPosition(), trajectory);
-        var newPos = cc.pAdd(this.totalPosition, trajectory);
-
-        // this.player.setPosition(newPos);
-        if (newPos.x < 0) {
-            newPos.x = 0
-        } else if (newPos.x > this.arenaSize.width) {
-            newPos.x = this.arenaSize.width
-        }
-        if (newPos.y < 0) {
-            newPos.y = 0
-        } else if (newPos.y > this.arenaSize.height) {
-            newPos.y = this.arenaSize.height
-        }
-
-        this.totalPosition = newPos;
-
-        this.arena.setPosition(cc.pSub(this.arenaMax, this.totalPosition));
-
+        this.arena.setPosition(cc.pSub(this.arenaMax, this.body.p));
     },
     updateOrientation: function (dt) {
         xDiff = this.aim.x - this.player.x;
@@ -76,17 +52,42 @@ var HelloWorldLayer = cc.Layer.extend({
         this.player.setRotation(this.angleDeg);
     },
     update: function (dt) {
-        this.updatePosition(dt);
-        this.updateOrientation(dt);
-        if (this.totalPosition.x != this.lastPos.x || this.totalPosition.y != this.lastPos.y || this.angleDeg != this.lastDeg) {
-            this.sockHandler.updatePos(this.totalPosition, this.angleDeg);
-            this.lastPos = {
-                x: this.totalPosition.x,
-                y: this.totalPosition.y
-            };
-            this.lastDeg = this.angleDeg;
-        }
+        // this.updatePosition(dt);
+        // this.updateOrientation(dt);
+        // if (this.totalPosition.x != this.lastPos.x || this.totalPosition.y != this.lastPos.y || this.angleDeg != this.lastDeg) {
+        //     this.sockHandler.updatePos(this.totalPosition, this.angleDeg);
+        //     this.lastPos = {
+        //         x: this.totalPosition.x,
+        //         y: this.totalPosition.y
+        //     };
+        //     this.lastDeg = this.angleDeg;
+        // }
         this.sockHandler.updateCycle(dt);
+        this.space.step(dt);
+    },
+    initPhysics:function() {
+        //1. new space object
+        this.space = new cp.Space();
+        //2. setup the  Gravity
+        // this.space.gravity = cp.v(0, -350);
+
+        //Add the Debug Layer:
+        var debugNode = new cc.PhysicsDebugNode(this.space);
+        debugNode.visible = true;
+        this.addChild(debugNode);
+
+
+        // 3. set up Walls
+        var wallBottom = new cp.SegmentShape(this.space.staticBody,
+            cp.v(0, 0),// start point
+            cp.v(this.arenaSize.width, 0),// MAX INT:4294967295
+            0);// thickness of wall
+        this.space.addStaticShape(wallBottom);
+    },
+    getEyeX: function () {
+        var pos = this.player.getPosition();
+        cc.log("getEye:" +pos.x+", "+pos.y);
+        return pos;
     },
     ctor: function () {
         //////////////////////////////
@@ -99,6 +100,8 @@ var HelloWorldLayer = cc.Layer.extend({
         // ask the window size
         var size = cc.winSize;
         this.arenaMax = cc.p(this.arenaSize.width, this.arenaSize.height);
+
+        this.initPhysics();
 
         // /////////////////////////////
         // // 3. add your codes below...
@@ -119,13 +122,34 @@ var HelloWorldLayer = cc.Layer.extend({
         // });
         // this.addChild(this.sprite, 0);
 
-        this.player = new cc.Sprite(res.player1_png);
-        this.player.attr({
-            x: size.width / 2,
-            y: size.height / 2
-        });
-        this.player.setAnchorPoint(cc.p(0.25, 0.5));
-        this.totalPosition = cc.p(Math.random()*this.arenaSize.width, Math.random()*this.arenaSize.height);
+        //1. create PhysicsSprite with a sprite frame name
+        this.player = new cc.PhysicsSprite(res.player1_png);
+        var contentSize = this.player.getContentSize();
+        // 2. init the runner physic body
+        this.body = new cp.Body(1, cp.momentForBox(1, contentSize.width, contentSize.height));
+        //3. set the position of the runner
+        this.body.p = cc.p(Math.random()*this.arenaSize.width, Math.random()*this.arenaSize.height);
+        //4. apply impulse to the body
+        // this.body.applyForce(cp.v(150, 0), cp.v(0, 0));//run speed
+        // this.body.applyForce(cp.v(0, 20), cp.v(0, 0));//run speed
+        // this.body.applyImpulse(cp.v(150, 0), cp.v(0, 0));//run speed
+        //5. add the created body to space
+        this.space.addBody(this.body);
+        //6. create the shape for the body
+        this.shape = new cp.BoxShape(this.body, contentSize.width, contentSize.height);
+        //7. add shape to space
+        this.space.addShape(this.shape);
+        //8. set body to the physic sprite
+        this.player.setBody(this.body);
+
+
+        // this.player = new cc.Sprite(res.player1_png);
+        // this.player.attr({
+        //     x: size.width / 2,
+        //     y: size.height / 2
+        // });
+        // this.player.setAnchorPoint(cc.p(0.25, 0.5));
+        // this.totalPosition =
         this.addChild(this.player, 10);
 
         this.arena = new cc.Sprite(res.arena_png);
@@ -146,18 +170,55 @@ var HelloWorldLayer = cc.Layer.extend({
         }, this);
 
         var setMovement = function (keycode, up) {
+            var impulse = false;
             switch (keycode) {
                 case 87:
-                    scope.moving.up = up;
+                    if (up == 1 && !scope.moving.up) {
+                        impulse = true;
+                        scope.moving.up = true;
+                    } else if (up == -1 && scope.moving.up) {
+                        impulse = true;
+                        scope.moving.up = false;
+                    }
+                    if (impulse) {
+                        scope.body.applyImpulse(cp.v(0, up * scope.velocity), cp.v(0, 0));
+                    }
                     break;
                 case 83:
-                    scope.moving.down = up;
+                    if (up == 1 && !scope.moving.down) {
+                        impulse = true;
+                        scope.moving.down = true;
+                    } else if (up == -1 && scope.moving.down) {
+                        impulse = true;
+                        scope.moving.down = false;
+                    }
+                    if (impulse) {
+                        scope.body.applyImpulse(cp.v(0, -up * scope.velocity), cp.v(0, 0));
+                    }
                     break;
                 case 65:
-                    scope.moving.left = up;
+                    if (up == 1 && !scope.moving.left) {
+                        impulse = true;
+                        scope.moving.left = true;
+                    } else if (up == -1 && scope.moving.left) {
+                        impulse = true;
+                        scope.moving.left = false;
+                    }
+                    if (impulse) {
+                        scope.body.applyImpulse(cp.v(-up * scope.velocity, 0), cp.v(0, 0));
+                    }
                     break;
                 case 68:
-                    scope.moving.right = up;
+                    if (up == 1 && !scope.moving.right) {
+                        impulse = true;
+                        scope.moving.right = true;
+                    } else if (up == -1 && scope.moving.right) {
+                        impulse = true;
+                        scope.moving.right = false;
+                    }
+                    if (impulse) {
+                        scope.body.applyImpulse(cp.v(up * scope.velocity, 0), cp.v(0, 0));
+                    }
                     break;
             }
         };
@@ -171,19 +232,20 @@ var HelloWorldLayer = cc.Layer.extend({
             },
             onKeyReleased: function (keycode, event) {
                 if (specialKeys.indexOf(keycode) > -1) {
-                    switch(keycode) {
-                        case 49: //1
-                            socketConnect();
-                            break;
-                        case 50: //2
-                            socketSend();
-                            break;
-                        case 51: //3
-                            socketDisconnect();
-                            break;
-                    }
+                    // switch(keycode) {
+                    //     case 49: //1
+                    //         socketConnect();
+                    //         break;
+                    //     case 50: //2
+                    //         socketSend();
+                    //         break;
+                    //     case 51: //3
+                    //         socketDisconnect();
+                    //         break;
+
                 } else {
-                    setMovement(keycode, 0);
+                    // setMovement(keycode, 0);
+                    setMovement(keycode, -1);
                 }
             }
 
