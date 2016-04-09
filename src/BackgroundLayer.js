@@ -2,7 +2,7 @@ var BackgroundLayer = cc.Layer.extend({
     space:null,
     gameLayer:null,
     arena: null,
-
+    size: null,
     ctor:function (space) {
         this._super();
         this.space = space;
@@ -11,11 +11,11 @@ var BackgroundLayer = cc.Layer.extend({
     init:function () {
         this._super();
 
-        var size = cc.winSize;
+        this.size = cc.winSize;
 
         // load arena sprite
         this.arena = new cc.Sprite(res.arena_png);
-        this.arena.attr({x:size.width/2, y:size.height/2});
+        this.arena.attr({x:this.size.width/2, y:this.size.height/2});
         // this.arena.setAnchorPoint(cc.p(-0.05,0.38));
         this.addChild(this.arena, 0);
 
@@ -28,6 +28,12 @@ var BackgroundLayer = cc.Layer.extend({
         this.scheduleUpdate();
     },
     update: function(dt) {
-        
+        var playerLayer = this.gameLayer.getChildByTag(TagOfLayer.player);
+        var playerPos = playerLayer.getPos();
+        var centeredPlayer = cc.pSub(cc.p(this.size.width, this.size.height), playerPos);
+        // cc.log(playerPos);
+        // cc.log("player:"+playerPos.x,+", "+playerPos.y);
+        // cc.log(this.size);
+        this.arena.setPosition(centeredPlayer);
     }
 });

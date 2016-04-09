@@ -54,5 +54,8 @@ var PlayerLayer = cc.Layer.extend({
     },
     update: function(dt) {
         movementHandler.updateOrientation(this);
+    },
+    getPos: function() {
+        return this.player.getPosition();
     }
 });
