@@ -38,24 +38,14 @@ var PlayerLayer = cc.Layer.extend({
             }
         }, this);
 
-        cc.eventManager.addListener({
-            event: cc.EventListener.MOUSE,
-            onMouseMove: function (event) {
-                movementHandler.aim = {
-                    x: event.getLocationX(),
-                    y: event.getLocationY()
-                };
-            }
-        }, this);
-
         helpers.addDebugNode(this);
 
         this.scheduleUpdate();
     },
     update: function(dt) {
-        movementHandler.updateOrientation(this);
+        
     },
-    getPos: function() {
-        return this.player.getPosition();
+    getPlayer: function() {
+        return this.player;
     }
 });

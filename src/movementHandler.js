@@ -46,9 +46,11 @@ var movementHandler = {
             body.applyImpulse(impulseVal, cp.v(0, 0));
         }
     },
-    updateOrientation: function (scope) {
-        xDiff = this.aim.x - scope.player.x;
-        yDiff = this.aim.y - scope.player.y;
+    updateOrientation: function (player) {
+        xDiff = this.aim.x - cc.winSize.width/2;
+        yDiff = this.aim.y - cc.winSize.height/2;
+        // xDiff = this.aim.x - scope.player.x;
+        // yDiff = this.aim.y - scope.player.y;
         angleRad = Math.atan(yDiff / xDiff);
         angleDeg = angleRad * 180 / Math.PI;
         if (xDiff > 0 && yDiff < 0) {
@@ -66,7 +68,7 @@ var movementHandler = {
             angleDeg+= 360;
         }
         this.angleDeg = angleDeg;
-        scope.player.setRotation(this.angleDeg);
+        player.setRotation(this.angleDeg);
     }
 
 };

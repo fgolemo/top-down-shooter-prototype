@@ -27,13 +27,11 @@ var BackgroundLayer = cc.Layer.extend({
 
         this.scheduleUpdate();
     },
-    update: function(dt) {
+    getPlayer: function() {
         var playerLayer = this.gameLayer.getChildByTag(TagOfLayer.player);
-        var playerPos = playerLayer.getPos();
-        var centeredPlayer = cc.pSub(cc.p(this.size.width, this.size.height), playerPos);
-        // cc.log(playerPos);
-        // cc.log("player:"+playerPos.x,+", "+playerPos.y);
-        // cc.log(this.size);
-        this.arena.setPosition(centeredPlayer);
+        return playerLayer.getPlayer();
+    },
+    update: function(dt) {
+        
     }
 });
